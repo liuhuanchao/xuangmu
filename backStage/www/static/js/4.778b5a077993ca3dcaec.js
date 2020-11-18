@@ -1,0 +1,2 @@
+webpackJsonp([4],{NcgL:function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r={render:function(){var e=this.$createElement,t=this._self._c||e;return t("div",[this._v("\n  search\n  "),t("go-back")],1)},staticRenderFns:[]};var c=n("VU/8")({},r,!1,function(e){n("tdy+")},null,null);t.default=c.exports},"tdy+":function(e,t){}});
+//# sourceMappingURL=4.778b5a077993ca3dcaec.js.map
