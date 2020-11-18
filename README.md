@@ -1,21 +1,26 @@
 # xiangmu
 
-> A Vue.js project
+> 1.菜单管理
+>
+> ok
+>
+> 2.角色管理
+>
+> ok
+>
+> 3.管理员管理
+>
+> ok
+>
+> 4.商品分类、ok
+>
+> 5.商品规格 ok
+>
+> 6.商品管理 ok
+>
+> 7，会员管理 ok
+>
+> 8.轮播图管理  未做
+>
+> 9.秒杀活动  未做
 
-## Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
