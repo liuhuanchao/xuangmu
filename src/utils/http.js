@@ -404,3 +404,108 @@ export const reqMemberUpdate = (user) => {
         data: qs.stringify(user)
     })
 }
+
+//轮播图
+export const reqBannerList = (p) => {
+
+        return axios({
+            url: baseUrl + "/api/bannerlist",
+            method: "get",
+            params: p
+        })
+    }
+    //详情
+export const reqBannerDetail = (id) => {
+
+        return axios({
+            url: baseUrl + "/api/bannerinfo",
+            method: "get",
+            params: {
+                id: id
+            }
+        })
+    }
+    //更新
+export const reqBannerUpdate = (user) => {
+    let d = new FormData()
+    for (let i in user) {
+        d.append(i, user[i])
+    }
+    return axios({
+        url: baseUrl + "/api/banneredit",
+        method: "post",
+        data: d
+    })
+}
+
+export const reqBannerDel = (id) => {
+
+    return axios({
+        url: baseUrl + "/api/bannerdelete",
+        method: "post",
+        params: {
+            id: id
+        }
+    })
+}
+
+//添加 文件
+export const reqBannerAdd = (user) => {
+    console.log(user)
+    let d = new FormData()
+    for (let i in user) {
+        d.append(i, user[i])
+    }
+    return axios({
+        url: baseUrl + '/api/banneradd',
+        method: 'post',
+        data: d
+    })
+}
+
+//秒杀
+//列表
+export const reqSeckList = () => {
+        return axios({
+            url: baseUrl + '/api/secklist',
+            method: 'get'
+        })
+    }
+    //添加
+export const reqSeckAdd = (user) => {
+    return axios({
+        url: baseUrl + "/api/seckadd",
+        method: 'post',
+        data: qs.stringify(user)
+    })
+}
+
+//获取一条数据
+export const reqSeckDetail = (id) => {
+    return axios({
+        url: baseUrl + '/api/seckinfo',
+        method: 'get',
+        params: {
+            id: id
+        }
+    })
+}
+
+//修改
+export const reqSeckUpdate = (user) => {
+    return axios({
+        url: baseUrl + '/api/seckedit',
+        method: 'post',
+        data: qs.stringify(user)
+    })
+}
+
+//删除
+export const reqSeckDel = (id) => {
+    console.log(id)
+    return axios({
+        url: baseUrl + '/api/seckdelete',
+        method: 'post',
+        data: qs.stringify({ id })
+    })
+}

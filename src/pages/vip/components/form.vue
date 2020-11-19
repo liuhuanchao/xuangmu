@@ -38,10 +38,6 @@ export default {
         password: "",
         status: "",
       },
-      // info: {
-      //   isshow: true,
-      //   title:'编辑vip'
-      // },
       memberList:[]
     };
   },

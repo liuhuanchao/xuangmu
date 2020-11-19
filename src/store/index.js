@@ -7,6 +7,8 @@ import { state, mutations, getters } from './mutations'
 import cate from './modules/cate'
 import specs from './modules/sepcs'
 import goods from './modules/goods'
+import banner from './modules/banner'
+import seckill from './modules/seckill'
 export default new Vuex.Store({
     state,
     mutations,
@@ -15,6 +17,8 @@ export default new Vuex.Store({
     modules: {
         cate,
         specs,
-        goods
+        goods,
+        banner,
+        seckill
     }
 })

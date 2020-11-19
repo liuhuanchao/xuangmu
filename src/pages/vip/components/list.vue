@@ -20,8 +20,8 @@
        <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button type="primary" @click="edit(scope.row.uid)">编辑</el-button>
-          <!-- 32.绑定confirm事件 -->
-          <del-btn @confirm="del(scope.row.uid)"></del-btn>
+
+
         </template>
       </el-table-column>
     </el-table>
@@ -30,8 +30,8 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
-import { successAlert } from '../../../utils/alert';
-import { reqUserDel} from '../../../utils/http'
+
+
 export default {
   props: ["list"],
 
