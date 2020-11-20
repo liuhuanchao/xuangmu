@@ -1,8 +1,8 @@
 <template>
   <div>
-    <el-dialog :title="info.title" :visible.sync="info.isShow" @closed='closed'>
-      <el-form :model="user">
-        <el-form-item label="角色名称" label-width="120px">
+    <el-dialog :title="info.title" :visible.sync="info.isShow" @closed="closed">
+      <el-form :model="user" :rules="rules">
+        <el-form-item label="角色名称" label-width="120px" prop="rolename">
           <el-input v-model="user.rolename" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="角色权限" label-width="120px">
@@ -28,16 +28,26 @@
 </template>
 <script>
 import { mapGetters, mapActions } from "vuex";
-import {reqMenuList, reqRoleAdd ,reqRoleDetail,reqRoleUpdate} from "../../../utils/http";
-import { successAlert } from "../../../utils/alert";
+import {
+  reqMenuList,
+  reqRoleAdd,
+  reqRoleDetail,
+  reqRoleUpdate,
+} from "../../../utils/http";
+import { successAlert ,errorAlert} from "../../../utils/alert";
 export default {
-   props: ["info"],
+  props: ["info"],
   data() {
     return {
       user: {
         rolename: "",
         menus: "",
         status: 1,
+      },
+      rules: {
+        rolename: [
+          { required: true, message: "请输入角色名称", trigger: "change" },
+        ],
       },
       menuList: [],
     };
@@ -49,16 +59,18 @@ export default {
   methods: {
     ...mapActions({}),
     add() {
-      this.user.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
-      reqRoleAdd(this.user).then(res => {
-        console.log(res);
-        if (res.data.code == 200) {
-          successAlert("添加成功");
-          this.cancel();
-          this.empty();
-          //刷新list
-          this.$emit("init");
-        }
+      this.check().then(() => {
+        this.user.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
+        reqRoleAdd(this.user).then((res) => {
+          console.log(res);
+          if (res.data.code == 200) {
+            successAlert("添加成功");
+            this.cancel();
+            this.empty();
+            //刷新list
+            this.$emit("init");
+          }
+        });
       });
     },
     empty() {
@@ -73,35 +85,45 @@ export default {
     cancel() {
       this.info.isShow = false;
     },
-    getOne(id){
-      reqRoleDetail(id).then(res=>{
-        this.user=res.data.list;
-        this.$refs.tree.setCheckedKeys(JSON.parse(this.user.menus))
-        this.user.id=id
-      })
+    getOne(id) {
+      reqRoleDetail(id).then((res) => {
+        this.user = res.data.list;
+        this.$refs.tree.setCheckedKeys(JSON.parse(this.user.menus));
+        this.user.id = id;
+      });
     },
-    update(){
-      this.user.menus=JSON.stringify(this.$refs.tree.getCheckedKeys());
-      reqRoleUpdate(this.user).then(res=>{
-        if(res.data.code ==200){
-          successAlert('修改成功')
-          this.cancel();
-          this.empty();
-          this.$emit("init")
-        }
-      })
+    update() {
+      this.check().then(() => {
+        this.user.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
+        reqRoleUpdate(this.user).then((res) => {
+          if (res.data.code == 200) {
+            successAlert("修改成功");
+            this.cancel();
+            this.empty();
+            this.$emit("init");
+          }
+        });
+      });
     },
-    closed(){
-      if(this.info.title==='编辑角色'){
-        this.empty()
+    closed() {
+      if (this.info.title === "编辑角色") {
+        this.empty();
       }
-    }
+    },
+    check() {
+      return new Promise((resolve, resject) => {
+        if (this.user.rolename === "") {
+          errorAlert("角色名称不能为空");
+          return;
+        }
+        resolve();
+      });
+    },
   },
   mounted() {
-    reqMenuList().then(res => {
+    reqMenuList().then((res) => {
       if (res.data.code == 200) {
         this.menuList = res.data.list;
-
       }
     });
   },

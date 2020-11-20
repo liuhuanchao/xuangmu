@@ -1,8 +1,8 @@
 <template>
   <div class="add">
     <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed">
-      <el-form :model="user">
-        <el-form-item label="规格名称" label-width="120px">
+      <el-form :model="user" :rules="rules">
+        <el-form-item label="规格名称" label-width="120px" prop="specsname">
           <el-input v-model="user.specsname" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="规格属性" label-width="120px" v-for="(item,index) in attrArr" :key="index">
@@ -42,6 +42,11 @@ export default {
         attrs: "",
         status: 1,
       },
+      rules: {
+        specsname: [
+          { required: true, message: "请输入规格名称", trigger: "change" },
+        ],
+      },
       //属性值
       attrArr: [{ value: "" }],
     };
@@ -52,24 +57,26 @@ export default {
   methods: {
     ...mapActions({
       reqList: "specs/reqList",
-      reqCount:'specs/reqCount'
+      reqCount: "specs/reqCount",
     }),
     cancel() {
       this.info.isshow = false;
     },
     add() {
-      this.user.attrs = JSON.stringify(this.attrArr.map((item) => item.value));
-      // console.log(this.user);
-      // console.log(this.attrArr);
-      reqspecsAdd(this.user).then((res) => {
-        if (res.data.code === 200) {
-          successAlert("添加成功");
-          this.cancel();
-          this.empty();
-          // //刷新list
-          this.reqList();
-          this.reqCount()
-        }
+      this.check().then(() => {
+        this.user.attrs = JSON.stringify(
+          this.attrArr.map((item) => item.value)
+        );
+        reqspecsAdd(this.user).then((res) => {
+          if (res.data.code === 200) {
+            successAlert("添加成功");
+            this.cancel();
+            this.empty();
+            // //刷新list
+            this.reqList();
+            this.reqCount();
+          }
+        });
       });
     },
     empty() {
@@ -94,14 +101,18 @@ export default {
       if (this.info.title === "编辑规格") this.empty();
     },
     update() {
-       this.user.attrs=JSON.stringify(this.attrArr.map(item=>item.value))
-      reqspecsUpdate(this.user).then((res) => {
-        if (res.data.code == 200) {
-          successAlert("更新成功");
-          this.cancel();
-          this.empty();
-          this.reqList();
-        }
+      this.check().then(() => {
+        this.user.attrs = JSON.stringify(
+          this.attrArr.map((item) => item.value)
+        );
+        reqspecsUpdate(this.user).then((res) => {
+          if (res.data.code == 200) {
+            successAlert("更新成功");
+            this.cancel();
+            this.empty();
+            this.reqList();
+          }
+        });
       });
     },
     getOne(id) {
@@ -111,6 +122,15 @@ export default {
           value: item,
         }));
         console.log(this.attrArr);
+      });
+    },
+    check() {
+      return new Promise((resolve, resject) => {
+        if (this.user.specsname === "") {
+          errorAlert("规格名称不能为空");
+          return;
+        }
+        resolve();
       });
     },
   },

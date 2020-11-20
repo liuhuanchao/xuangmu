@@ -1,8 +1,8 @@
 <template>
   <div class="add">
     <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed">
-      <el-form :model="user">
-        <el-form-item label="上级分类" label-width="120px">
+      <el-form :model="user" :rules="rules">
+        <el-form-item label="上级分类" label-width="120px" prop="pid">
           <el-select v-model="user.pid" placeholder="请选择角色">
             <el-option :value="0" label="顶级分类"></el-option>
             <el-option
@@ -13,7 +13,7 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="分类名称" label-width="120px">
+        <el-form-item label="分类名称" label-width="120px" prop="catename">
           <el-input v-model="user.catename" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="图片" label-width="120px">
@@ -67,6 +67,12 @@ export default {
         img: null,
         status: 1,
       },
+      rules: {
+        pid: [{ required: true, message: "请输入所属角色", trigger: "change" }],
+        catename: [
+          { required: true, message: "请输入用户名", trigger: "change" },
+        ],
+      },
       //初始化图片路径
       imgUrl: "",
     };
@@ -106,13 +112,15 @@ export default {
       this.info.isshow = false;
     },
     add() {
-      reqCateAdd(this.user).then((res) => {
-        if (res.data.code == 200) {
-          successAlert("添加成功");
-          this.cancel();
-          this.empty();
-          this.reqList();
-        }
+      this.check().then(() => {
+        reqCateAdd(this.user).then((res) => {
+          if (res.data.code == 200) {
+            successAlert("添加成功");
+            this.cancel();
+            this.empty();
+            this.reqList();
+          }
+        });
       });
     },
     getOne(id) {
@@ -137,7 +145,8 @@ export default {
       this.imgUrl = "";
     },
     update() {
-      reqCatedate(this.user).then((res) => {
+      this.check().then(()=>{
+         reqCatedate(this.user).then((res) => {
         if (res.data.code == 200) {
           successAlert("修改成功");
           this.cancel();
@@ -145,11 +154,26 @@ export default {
           this.reqList();
         }
       });
+      })
+
     },
     closed() {
       if (this.info.title === "编辑管理员") {
         this.empty();
       }
+    },
+    check() {
+      return new Promise((resolve, resject) => {
+        if (this.user.catename === "") {
+          errorAlert("分类名称不能为空");
+          return;
+        }
+        if (this.user.pid === "") {
+          errorAlert("上级分类不能为空");
+          return;
+        }
+        resolve();
+      });
     },
   },
   mounted() {

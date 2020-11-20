@@ -1,11 +1,11 @@
 <template>
   <div>
     <el-dialog :title="info.title" :visible.sync="info.isshow">
-      <el-form :model="user">
-        <el-form-item label="昵称" label-width="120px">
+      <el-form :model="user" :rules="rules">
+        <el-form-item label="昵称" label-width="120px" prop="nickname">
           <el-input v-model="user.nickname" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="手机号" label-width="120px">
+        <el-form-item label="手机号" label-width="120px" prop="phone">
           <el-input v-model="user.phone" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" label-width="120px">
@@ -24,12 +24,15 @@
 </template>
 <script>
 import { mapGetters, mapActions } from "vuex";
-import { reqMemberDetail, reqMemberUpdate,reqMemberList } from "../../../utils/http";
-import { successAlert } from "../../../utils/alert";
+import {
+  reqMemberDetail,
+  reqMemberUpdate,
+  reqMemberList,
+} from "../../../utils/http";
+import { successAlert,errorAlert } from "../../../utils/alert";
 export default {
-  props:['info'],
+  props: ["info"],
   data() {
-
     return {
       user: {
         uid: "",
@@ -38,7 +41,13 @@ export default {
         password: "",
         status: "",
       },
-      memberList:[]
+      rules: {
+        nickname: [
+          { required: true, message: "请输入昵称", trigger: "change" },
+        ],
+        phone: [{ required: true, message: "请输入手机号", trigger: "change" }],
+      },
+      memberList: [],
     };
   },
   computed: {
@@ -55,11 +64,26 @@ export default {
       });
     },
     update() {
-      reqMemberUpdate(this.user).then((res) => {
-        if (res.data.code == 200) {
-          successAlert("更新成功");
-          this.$emit('init')
+      this.check().then(() => {
+        reqMemberUpdate(this.user).then((res) => {
+          if (res.data.code == 200) {
+            successAlert("更新成功");
+            this.$emit("init");
+          }
+        });
+      });
+    },
+    check() {
+      return new Promise((resolve, resject) => {
+        if (this.user.nickname === "") {
+          errorAlert("昵称不能为空");
+          return;
         }
+        if (this.user.phone === "") {
+          errorAlert("手机号不能为空");
+          return;
+        }
+        resolve();
       });
     },
   },

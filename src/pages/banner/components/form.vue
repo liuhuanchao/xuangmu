@@ -1,8 +1,8 @@
 <template>
   <div class="add">
     <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed">
-      <el-form :model="user">
-        <el-form-item label="标题" label-width="120px">
+      <el-form :model="user" :rules="rules">
+        <el-form-item label="标题" label-width="120px" prop="title">
           <el-input v-model="user.title" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="图片" label-width="120px">
@@ -48,6 +48,9 @@ export default {
         img: null,
         status: 1,
       },
+      rules: {
+        title: [{ required: true, message: "请输入标题", trigger: "change" }],
+      },
       //初始化图片路径
       imgUrl: "",
     };
@@ -86,13 +89,15 @@ export default {
       this.info.isshow = false;
     },
     add() {
-      reqBannerAdd(this.user).then((res) => {
-        if (res.data.code == 200) {
-          successAlert("添加成功");
-          this.cancel();
-          this.empty();
-          this.reqList();
-        }
+      this.check().then(() => {
+        reqBannerAdd(this.user).then((res) => {
+          if (res.data.code == 200) {
+            successAlert("添加成功");
+            this.cancel();
+            this.empty();
+            this.reqList();
+          }
+        });
       });
     },
     getOne(id) {
@@ -105,7 +110,7 @@ export default {
     },
     empty() {
       this.user = {
-           id: "",
+        id: "",
         title: "",
         img: null,
         status: 1,
@@ -113,14 +118,16 @@ export default {
       this.imgUrl = "";
     },
     update() {
-      reqBannerUpdate(this.user).then((res) => {
-        if (res.data.code == 200) {
-          successAlert("修改成功");
-          this.cancel();
-          this.empty();
-          this.reqList();
-          this.$emit("init")
-        }
+      this.check().then(() => {
+        reqBannerUpdate(this.user).then((res) => {
+          if (res.data.code == 200) {
+            successAlert("修改成功");
+            this.cancel();
+            this.empty();
+            this.reqList();
+            this.$emit("init");
+          }
+        });
       });
     },
     closed() {
@@ -128,9 +135,17 @@ export default {
         this.empty();
       }
     },
+    check() {
+      return new Promise((resolve, resject) => {
+        if (this.user.title === "") {
+          errorAlert("昵称不能为空");
+          return;
+        }
+        resolve();
+      });
+    },
   },
   mounted() {
-
     // reqBannerList().then((res) => {
     //   if (res.data.code == 200) {
     //     this.roleList = res.data.list;

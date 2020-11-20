@@ -2,10 +2,10 @@
   <div class="add">
     <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed">
       <el-form :model="user" :rules="rules">
-        <el-form-item label="活动名称" label-width="120px" prop="goodsname">
+        <el-form-item label="活动名称" label-width="120px" prop="title">
           <el-input v-model="user.title"></el-input>
         </el-form-item>
-        <el-form-item label="活动日期" label-width="120px">
+        <el-form-item label="活动日期" label-width="120px" prop="value1">
           <el-date-picker
             v-model="value1"
             type="datetimerange"
@@ -38,7 +38,7 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="商品" label-width="120px" prop="specsid">
+        <el-form-item label="商品" label-width="120px" prop="goodsid">
           <el-select placeholder="请选择商品" v-model="user.goodsid" >
             <el-option
               v-for="item in goodsList"
@@ -76,14 +76,16 @@ export default {
   data() {
     return {
       rules: {
-        first_cateid: [
-          { required: true, message: "请输入一级分类", trigger: "change" },
-        ],
-        second_cateid: [
-          { required: true, message: "请输入二级分类", trigger: "change" },
-        ],
-        title: [{ required: true, message: "请输入活动名称", trigger: "blur" }],
-        goodsid: [{ required: true, message: "请输入商品", trigger: "change" }],
+
+        // first_cateid: [
+        //   { required: true, message: "请输入一级分类", trigger: "change" },
+        // ],
+        // second_cateid: [
+        //   { required: true, message: "请输入二级分类", trigger: "change" },
+        // ],
+        title: [{ required: true, message: "请输入活动名称", trigger: "change" }],
+        // goodsid: [{ required: true, message: "请输入商品", trigger: "change" }],
+
       },
       user: {
         title: "",
@@ -152,6 +154,7 @@ export default {
         goodsid: "",
         status: 1,
       };
+       value1: [],
       //二级分类的list
       this.secondCateList = [];
     },
@@ -173,10 +176,6 @@ export default {
         sid: this.user.second_cateid,
       });
     },
-    // changeSpecsId() {
-    //   this.user.specsattr = [];
-    //   this.getAttrs();
-    // },
     //验证
     check() {
       return new Promise((resolve, resject) => {
@@ -184,11 +183,12 @@ export default {
           errorAlert("一级分类不能为空");
           return;
         }
+
         if (this.user.second_cateid === "") {
           errorAlert("二级分类不能为空");
           return;
         }
-        if (this.user.titlename === "") {
+        if (this.user.title === "") {
           errorAlert("活动名称为空");
           return;
         }
@@ -196,6 +196,7 @@ export default {
           errorAlert("请选择商品");
           return;
         }
+
         resolve();
       });
     },
@@ -205,7 +206,6 @@ export default {
     update() {
       this.check().then(() => {
         let d = { ...this.user };
-        // d.specsattr = JSON.stringify(d.specsattr);
         reqSeckUpdate(d).then((res) => {
           if (res.data.code == 200) {
             successAlert("更新成功");

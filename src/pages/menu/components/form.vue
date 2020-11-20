@@ -1,12 +1,12 @@
 <template>
- <div>
+  <div>
     <!-- 5.绑定info.isshow到模板 -->
     <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed">
-      <el-form :model="form">
-        <el-form-item label="菜单名称" label-width="120px">
+      <el-form :model="form" :rules="rules">
+        <el-form-item label="菜单名称" label-width="120px" prop="title">
           <el-input v-model="form.title" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="上级菜单" label-width="120px">
+        <el-form-item label="上级菜单" label-width="120px" prop="pid">
           <el-select v-model="form.pid" placeholder="请选择" @change="changePid">
             <el-option label="顶级菜单" :value="0"></el-option>
             <!-- 23 list遍历 -->
@@ -53,7 +53,7 @@
 <script>
 import { routes } from "../../../router";
 import { mapGetters, mapActions } from "vuex";
-import { reqMenuAdd,reqMenuUpdate,reqMenuDetail } from "../../../utils/http";
+import { reqMenuAdd, reqMenuUpdate, reqMenuDetail } from "../../../utils/http";
 import { errorAlert, successAlert } from "../../../utils/alert";
 
 export default {
@@ -67,7 +67,7 @@ export default {
         "el-icon-s-tools",
         "el-icon-user-solid",
         "el-icon-s-help",
-        "el-icon-s-operation"
+        "el-icon-s-operation",
       ],
       //定义routes
       routes: routes,
@@ -78,12 +78,18 @@ export default {
         icon: "",
         type: "",
         url: "",
-        status: 1
-      }
+        status: 1,
+      },
+      rules: {
+        title: [
+          { required: true, message: "请输入菜单名称", trigger: "change" },
+        ],
+        pid: [{ required: true, message: "请输入上级菜单", trigger: "change" }],
+      },
     };
   },
   computed: {
-    ...mapGetters({})
+    ...mapGetters({}),
   },
   methods: {
     ...mapActions({}),
@@ -108,65 +114,81 @@ export default {
         icon: "",
         type: "",
         url: "",
-        status: 1
+        status: 1,
       };
     },
     //点击了添加按钮
     add() {
-      //发起添加的请求
-      reqMenuAdd(this.form).then(res => {
-        if (res.data.code === 200) {
-          //成功
-          //弹个成功
-          successAlert("添加成功");
-          //弹框消失
-          this.cancel();
-          //form置空
-          this.empty();
-          //通知menu刷新列表数据
-          this.$emit("init");
-        } else {
-          errorAlert(res.data.msg);
-        }
+      this.check().then(() => {
+        //发起添加的请求
+        reqMenuAdd(this.form).then((res) => {
+          if (res.data.code === 200) {
+            //成功
+            //弹个成功
+            successAlert("添加成功");
+            //弹框消失
+            this.cancel();
+            //form置空
+            this.empty();
+            //通知menu刷新列表数据
+            this.$emit("init");
+          } else {
+            errorAlert(res.data.msg);
+          }
+        });
       });
     },
     //获取一条数据
-    getOne(id){
-        reqMenuDetail(id).then(res=>{
-            //此时form上是没有id的
-            this.form=res.data.list
-            //补id
-            this.form.id=id
-        })
+    getOne(id) {
+      reqMenuDetail(id).then((res) => {
+        //此时form上是没有id的
+        this.form = res.data.list;
+        //补id
+        this.form.id = id;
+      });
     },
     //点了修改
-    update(){
-        reqMenuUpdate(this.form).then(res=>{
-            if(res.data.code===200){
-                //成功弹框
-                successAlert("修改成功")
-                //弹框消失
-                this.cancel()
-                //form重置
-                this.empty()
-                //列表刷新
-                this.$emit("init")
-            }else{
-                errorAlert(res.data.msg)
-            }
-
-        })
+    update() {
+      this.check().then(() => {
+        reqMenuUpdate(this.form).then((res) => {
+          if (res.data.code === 200) {
+            //成功弹框
+            successAlert("修改成功");
+            //弹框消失
+            this.cancel();
+            //form重置
+            this.empty();
+            //列表刷新
+            this.$emit("init");
+          } else {
+            errorAlert(res.data.msg);
+          }
+        });
+      });
     },
     //弹框消失
-    closed(){
-        // 如果是添加出现，点击了取消，此时，什么都不做
-        // 如果是编辑出现，点击了取消，此时，form置空
-        if(this.info.title==="编辑菜单"){
-            this.empty()
+    closed() {
+      // 如果是添加出现，点击了取消，此时，什么都不做
+      // 如果是编辑出现，点击了取消，此时，form置空
+      if (this.info.title === "编辑菜单") {
+        this.empty();
+      }
+    },
+    check() {
+      return new Promise((resolve, resject) => {
+        if (this.form.title === "") {
+          errorAlert("菜单名称不能为空");
+          return;
         }
-    }
+        if (this.form.pid === "") {
+          errorAlert("上级菜单不能为空");
+          return;
+        }
+        resolve();
+      });
+    },
   },
-  mounted() {}
+  mounted() {},
 };
 </script>
 

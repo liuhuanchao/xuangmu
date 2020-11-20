@@ -1,8 +1,8 @@
 <template>
   <div>
-    <el-dialog :title="info.title" :visible.sync="info.isshow" @closed='closed'>
-      <el-form :model="user">
-        <el-form-item label="所属角色" label-width="120px">
+    <el-dialog :title="info.title" :visible.sync="info.isshow" @closed="closed">
+      <el-form :model="user" :rules="rules">
+        <el-form-item label="所属角色" label-width="120px" prop="roleid">
           <!-- 通过v-model将user绑定到表单上 -->
           <el-select v-model="user.roleid" placeholder="请选择角色">
             <el-option
@@ -13,7 +13,7 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="用户名" label-width="120px">
+        <el-form-item label="用户名" label-width="120px" prop="username">
           <!-- 通过v-model将user绑定到表单上 -->
           <el-input v-model="user.username" autocomplete="off"></el-input>
         </el-form-item>
@@ -34,8 +34,13 @@
 </template>
 <script>
 import { mapGetters, mapActions } from "vuex";
-import { successAlert } from "../../../utils/alert";
-import { reqUserAdd, reqRoleList,reqUserDetail,reqUserUpdate } from "../../../utils/http";
+import { successAlert, errorAlert } from "../../../utils/alert";
+import {
+  reqUserAdd,
+  reqRoleList,
+  reqUserDetail,
+  reqUserUpdate,
+} from "../../../utils/http";
 export default {
   props: ["info"],
   data() {
@@ -47,8 +52,16 @@ export default {
         password: "",
         status: 1,
       },
+      rules: {
+        roleid: [
+          { required: true, message: "请输入所属角色", trigger: "change" },
+        ],
+        username: [
+          { required: true, message: "请输入用户名", trigger: "change" },
+        ],
+      },
       //角色列表
-      roleList: []
+      roleList: [],
     };
   },
   computed: {
@@ -56,48 +69,65 @@ export default {
   },
   methods: {
     ...mapActions({}),
-     cancel() {
+    cancel() {
       this.info.isshow = false;
     },
     add() {
-      reqUserAdd(this.user).then((res) => {
-        if (res.data.code == 200) {
-          successAlert("添加成功");
-          this.cancel();
-          this.empty()
-          this.$emit("init")
-        }
+      this.check().then(() => {
+        reqUserAdd(this.user).then((res) => {
+          if (res.data.code == 200) {
+            successAlert("添加成功");
+            this.cancel();
+            this.empty();
+            this.$emit("init");
+          }
+        });
       });
     },
-    getOne(uid){
-      reqUserDetail(uid).then(res=>{
-        this.user=res.data.list;
-        this.user.password=''
-      })
+    getOne(uid) {
+      reqUserDetail(uid).then((res) => {
+        this.user = res.data.list;
+        this.user.password = "";
+      });
     },
-    empty(){
-      this.user={
-         roleid: "",
+    empty() {
+      this.user = {
+        roleid: "",
         username: "",
         password: "",
         status: 1,
+      };
+    },
+    update() {
+      this.check().then(() => {
+        reqUserUpdate(this.user).then((res) => {
+          if (res.data.code == 200) {
+            successAlert("修改成功");
+            this.cancel();
+            this.empty();
+            this.$emit("init");
+          }
+        });
+      });
+    },
+    closed() {
+      if (this.info.title === "编辑管理员") {
+        this.empty();
       }
     },
-    update(){
-      reqUserUpdate(this.user).then(res=>{
-        if(res.data.code==200){
-          successAlert('修改成功')
-          this.cancel()
-          this.empty()
-          this.$emit('init')
+    check() {
+      return new Promise((resolve, resject) => {
+        if (this.user.username === "") {
+          errorAlert("用户名不能为空");
+          return;
         }
-      })
+        if (this.user.roleid === "") {
+          errorAlert("所属角色不能为空");
+          return;
+        }
+        resolve();
+      });
     },
-    closed(){
-      if(this.info.title==='编辑管理员'){
-        this.empty()
-      }
-    }
   },
   mounted() {
     //进来就加载菜单列表
